@@ -1,0 +1,15 @@
+2025-03-14 10:31:30 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 10:31:42 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 10:32:08 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 10:32:22 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 10:32:35 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 10:33:26 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 10:33:30 [31merror[39m: Error during sign-in read ECONNRESET
+2025-03-14 11:04:04 [31merror[39m: Error during sign-in self-signed certificate
+2025-03-14 11:04:04 [31merror[39m: Error during sign-in self-signed certificate
+2025-03-14 11:11:58 [32minfo[39m: Attempting to sign in with username: nikolaijuhl@hotmail.com to https://localhost:44329/Auth/login
+2025-03-14 11:11:58 [31merror[39m: Axios error during sign-in self-signed certificate
+2025-03-14 11:15:01 [32minfo[39m: Attempting to sign in with username: nikolaijuhl@hotmail.com to https://localhost:44329/Auth/login
+2025-03-14 11:15:01 [31merror[39m: Axios error during sign-in self-signed certificate
+2025-03-14 11:16:25 [32minfo[39m: Attempting to sign in with username: nikolaijuhl@hotmail.com to https://localhost:44329/Auth/login
+2025-03-14 11:16:25 [31merror[39m: Axios error during sign-in self-signed certificate
