@@ -7,7 +7,7 @@ import { ServiceResponse } from '@/src/core/domain/service-response.model';
 import { Card, CardContent, CardHeader, CardTitle } from '@/src/app/_components/ui/card';
 import { Button } from '@/src/app/_components/ui/button';
 import { Input } from '@/src/app/_components/ui/input';
-import { Select } from '@/src/app/_components/ui/select';
+// import { Select } from '@/src/app/_components/ui/Select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/src/app/_components/ui/dialog';
 import { Label } from '@/src/app/_components/ui/label';
 
