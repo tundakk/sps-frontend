@@ -1,28 +1,33 @@
-import { ServiceResponse, ServiceResponseFactory } from "@/src/core/domain/service-response.model"; 
+import { getInjection } from '@/src/di/container';
+import { ServiceResponse } from "@/src/core/domain/service-response.model"; 
 import { StudentDto } from '@/src/core/dtos/student/student.dto';
 import { getAllStudentsUseCase } from '@/src/application/use-cases/students/get-all-students.use-case';
 import { UnauthenticatedError } from '@/src/core/errors/authentication.error';
 
 export async function getAllStudentsController(): Promise<ServiceResponse<StudentDto[]>> {
   try {
-    // Just return the ServiceResponse from use case - don't wrap it again
-    return await getAllStudentsUseCase();
+    // Execute the use case to get all students
+    const useCaseResult = await getAllStudentsUseCase();
+    
+    // Get the presenter to format the response
+    const presenter = getInjection('IStudentPresenter');
+    return presenter.presentEntityCollection(useCaseResult);
+    
   } catch (error: unknown) {
     console.error('Error in getAllStudentsController:', error);
     
-    // Provide better error handling with specific error types
     if (error instanceof UnauthenticatedError) {
-      return ServiceResponseFactory.createError<StudentDto[]>(
-        error.message, 
-        'SESSION_REQUIRED'
-      );
+      return {
+        success: false,
+        message: 'Authentication required to access student data',
+        errorCode: 'UNAUTHENTICATED'
+      };
     }
     
-    // Get error message safely
-    const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve students';
-    const errorCode = 'STUDENT_FETCH_ERROR';
-    
-    // Use factory method for error responses
-    return ServiceResponseFactory.createError<StudentDto[]>(errorMessage, errorCode);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to retrieve students',
+      errorCode: 'GET_STUDENTS_ERROR'
+    };
   }
 }

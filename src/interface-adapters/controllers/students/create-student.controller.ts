@@ -1,52 +1,32 @@
-import { ServiceResponse, ServiceResponseFactory } from '@/src/core/domain/service-response.model';
-import { StudentDto } from '@/src/core/dtos/student/student.dto';
+import { getInjection } from '@/src/di/container';
+import { ServiceResponse } from "@/src/core/domain/service-response.model"; 
+import { StudentDto, CreateStudentDto } from '@/src/core/dtos/student';
 import { createStudentUseCase } from '@/src/application/use-cases/students/create-student.use-case';
-import { z } from 'zod';
+import { UnauthenticatedError } from '@/src/core/errors/authentication.error';
 
-// Validation schema for student creation
-const createStudentSchema = z.object({
-  name: z.object({
-    value: z.string().min(2, 'Name must be at least 2 characters').max(100)
-  }),
-  studentNumber: z.string().min(1, 'Student number is required'),
-  cprNumber: z.object({
-    value: z.string().min(10, 'CPR number must be at least 10 digits').max(10)
-  }),
-  startPeriodId: z.string().uuid('Start period ID must be a valid UUID'),
-  educationId: z.string().uuid('Education ID must be a valid UUID'),
-});
-
-type CreateStudentRequest = z.infer<typeof createStudentSchema>;
-
-/**
- * Controller for creating a new student
- * Validates input and passes data to the use case
- */
-export async function createStudentController(
-  studentData: CreateStudentRequest
-): Promise<ServiceResponse<StudentDto>> {
+export async function createStudentController(studentData: CreateStudentDto): Promise<ServiceResponse<StudentDto>> {
   try {
-    // Validate input
-    const validationResult = createStudentSchema.safeParse(studentData);
+    const useCaseResult = await createStudentUseCase(studentData);
     
-    if (!validationResult.success) {
-      const errors: Record<string, string[]> = {};
-      validationResult.error.errors.forEach(err => {
-        const path = err.path.join('.');
-        if (!errors[path]) errors[path] = [];
-        errors[path].push(err.message);
-      });
-      
-      return ServiceResponseFactory.createValidationError(errors);
+    // Get the presenter to format the response
+    const presenter = getInjection('IStudentPresenter');
+    return presenter.presentEntityCreation(useCaseResult);
+    
+  } catch (error: unknown) {
+    console.error('Error in createStudentController:', error);
+    
+    if (error instanceof UnauthenticatedError) {
+      return {
+        success: false,
+        message: 'Authentication required to create student',
+        errorCode: 'UNAUTHENTICATED'
+      };
     }
     
-    // Call the use case with validated data
-    return createStudentUseCase(studentData);
-  } catch (error) {
-    console.error('Error in createStudentController:', error);
-    return ServiceResponseFactory.createError(
-      error instanceof Error ? error.message : 'Failed to create student',
-      'CONTROLLER_ERROR'
-    );
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to create student',
+      errorCode: 'CREATE_STUDENT_ERROR'
+    };
   }
 }

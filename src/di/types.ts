@@ -13,7 +13,8 @@ export const DI_SYMBOLS = {
   IStudentService: Symbol.for("IStudentService"),
   AuthenticatedApiClientService: Symbol.for("AuthenticatedApiClientService"),
   ICookieStorageService: Symbol.for("ICookieStorageService"),
-  ISqliteService: Symbol.for('ISqliteService')
+  ISqliteService: Symbol.for('ISqliteService'),
+  IStudentPresenter: Symbol.for('IStudentPresenter'),
 };
 
 export type DI_RETURN_TYPES = {
@@ -24,4 +25,5 @@ export type DI_RETURN_TYPES = {
   AuthenticatedApiClientService: AuthenticatedApiClientService;
   ICookieStorageService: ICookieStorageService;
   ISqliteService: ISqliteService; 
+  IStudentPresenter: import('@/src/application/ports/presenters/student-presenter.port').IStudentPresenter;
 };

@@ -1,23 +1,32 @@
-import { ServiceResponse } from '@/src/core/domain/service-response.model';
-import { StudentDto } from '@/src/core/dtos/student/student.dto';
+import { getInjection } from '@/src/di/container';
+import { ServiceResponse } from "@/src/core/domain/service-response.model"; 
+import { StudentDetailsDto } from '@/src/core/dtos/student';
 import { getStudentByIdUseCase } from '@/src/application/use-cases/students/get-student-by-id.use-case';
+import { UnauthenticatedError } from '@/src/core/errors/authentication.error';
 
-/**
- * Controller for retrieving a student by ID
- * Validates input and passes data to the use case
- */
-export async function getStudentByIdController(
-  id: string
-): Promise<ServiceResponse<StudentDto>> {
-  if (!id || typeof id !== 'string' || id.trim() === '') {
+export async function getStudentByIdController(id: string): Promise<ServiceResponse<StudentDetailsDto>> {
+  try {
+    const useCaseResult = await getStudentByIdUseCase(id);
+    
+    // Get the presenter to format the response
+    const presenter = getInjection('IStudentPresenter');
+    return presenter.presentEntityDetails(useCaseResult);
+    
+  } catch (error: unknown) {
+    console.error('Error in getStudentByIdController:', error);
+    
+    if (error instanceof UnauthenticatedError) {
+      return {
+        success: false,
+        message: 'Authentication required to access student data',
+        errorCode: 'UNAUTHENTICATED'
+      };
+    }
+    
     return {
       success: false,
-      message: 'Student ID is required',
-      errorCode: 'INVALID_ID',
-      data: null
+      message: error instanceof Error ? error.message : `Failed to retrieve student with ID ${id}`,
+      errorCode: 'GET_STUDENT_ERROR'
     };
   }
-
-  // Call the use case
-  return getStudentByIdUseCase(id);
 }

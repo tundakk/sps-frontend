@@ -1,62 +1,32 @@
-import { ServiceResponse, ServiceResponseFactory } from '@/src/core/domain/service-response.model';
-import { StudentDto } from '@/src/core/dtos/student/student.dto';
+import { getInjection } from '@/src/di/container';
+import { ServiceResponse } from "@/src/core/domain/service-response.model"; 
+import { StudentDto, UpdateStudentDto } from '@/src/core/dtos/student';
 import { updateStudentUseCase } from '@/src/application/use-cases/students/update-student.use-case';
-import { z } from 'zod';
+import { UnauthenticatedError } from '@/src/core/errors/authentication.error';
 
-// Validation schema for student update
-const updateStudentSchema = z.object({
-  name: z.object({
-    value: z.string().min(2, 'Name must be at least 2 characters').max(100)
-  }).optional(),
-  studentNumber: z.string().min(1, 'Student number is required').optional(),
-  cprNumber: z.object({
-    value: z.string().min(10, 'CPR number must be at least 10 digits').max(10)
-  }).optional(),
-  startPeriodId: z.string().uuid('Start period ID must be a valid UUID').optional(),
-  educationId: z.string().uuid('Education ID must be a valid UUID').optional(),
-  finishedDate: z.union([z.string(), z.date(), z.null()]).optional(),
-}).strict();
-
-type UpdateStudentRequest = z.infer<typeof updateStudentSchema>;
-
-/**
- * Controller for updating a student
- * Validates input and passes data to the use case
- */
-export async function updateStudentController(
-  id: string,
-  studentData: UpdateStudentRequest
-): Promise<ServiceResponse<StudentDto>> {
+export async function updateStudentController(id: string, studentData: UpdateStudentDto): Promise<ServiceResponse<StudentDto>> {
   try {
-    // Validate ID
-    if (!id || typeof id !== 'string' || id.trim() === '') {
-      return ServiceResponseFactory.createError(
-        'Student ID is required',
-        'INVALID_ID'
-      );
-    }
+    const useCaseResult = await updateStudentUseCase(id, studentData);
     
-    // Validate student data
-    const validationResult = updateStudentSchema.safeParse(studentData);
+    // Get the presenter to format the response
+    const presenter = getInjection('IStudentPresenter');
+    return presenter.presentEntityUpdate(useCaseResult);
     
-    if (!validationResult.success) {
-      const errors: Record<string, string[]> = {};
-      validationResult.error.errors.forEach(err => {
-        const path = err.path.join('.');
-        if (!errors[path]) errors[path] = [];
-        errors[path].push(err.message);
-      });
-      
-      return ServiceResponseFactory.createValidationError(errors);
-    }
-    
-    // Call the use case with validated data
-    return updateStudentUseCase(id, studentData);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in updateStudentController:', error);
-    return ServiceResponseFactory.createError(
-      error instanceof Error ? error.message : 'Failed to update student',
-      'CONTROLLER_ERROR'
-    );
+    
+    if (error instanceof UnauthenticatedError) {
+      return {
+        success: false,
+        message: 'Authentication required to update student',
+        errorCode: 'UNAUTHENTICATED'
+      };
+    }
+    
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : `Failed to update student with ID ${id}`,
+      errorCode: 'UPDATE_STUDENT_ERROR'
+    };
   }
 }

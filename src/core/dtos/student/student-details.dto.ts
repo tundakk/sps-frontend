@@ -1,47 +1,30 @@
 import { z } from "zod";
 import { studentDtoSchema } from "./student.dto";
 
-// Education schema
-const educationSchema = z.object({
-  id: z.string().uuid(),
-  name: z.object({
-    value: z.string()
-  }),
-  code: z.string().optional()
-});
-
-// Period schema
-const periodSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string(),
-  startDate: z.string().or(z.date()),
-  endDate: z.string().or(z.date()).optional()
-});
-
-// Student comment schema
-const studentCommentSchema = z.object({
-  id: z.string().uuid(),
-  content: z.string(),
-  createdAt: z.string().or(z.date()),
-  updatedAt: z.string().or(z.date()).optional(),
-  createdBy: z.string()
-});
-
-// Case schema
-const casesSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string(),
-  status: z.string(),
-  createdAt: z.string().or(z.date()),
-  updatedAt: z.string().or(z.date()).optional()
-});
-
-// Extended student schema with relationship data
+// Extend the student schema with additional details
 export const studentDetailsDtoSchema = studentDtoSchema.extend({
-  education: educationSchema.nullable().optional(),
-  startPeriod: periodSchema.nullable().optional(),
-  comments: z.array(studentCommentSchema).default([]),
-  spsaCases: z.array(casesSchema).default([])
+  // Additional fields specific to student details can be added here
+  comments: z.array(z.object({
+    id: z.string().uuid(),
+    text: z.string(),
+    studentId: z.string().uuid(),
+    createdBy: z.string().optional(),
+    createdAt: z.string().nullable().or(z.date()).optional(),
+  })).default([]),
+  
+  spsaCases: z.array(z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    studentId: z.string().uuid(),
+    status: z.string().optional(),
+    createdBy: z.string().optional(),
+    updatedBy: z.string().optional(),
+    createdAt: z.string().nullable().or(z.date()).optional(),
+    updatedAt: z.string().nullable().or(z.date()).optional()
+  })).default([]),
+  
+  // We now inherit createdBy and updatedBy from the parent schema
+  // since we added them to studentDtoSchema
 });
 
 export type StudentDetailsDto = z.infer<typeof studentDetailsDtoSchema>;

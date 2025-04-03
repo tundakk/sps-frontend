@@ -10,6 +10,7 @@ import { AuthenticatedApiClientModule } from "./modules/authenticated-api-client
 import { CookieStorageModule } from './modules/cookie-storage.module';
 import { ApiClientModule } from './modules/api-client.module';
 import { SqliteModule } from './modules/sqlite.module';
+import { PresenterModule } from './modules/presenter.module';
 
 
 import { DI_RETURN_TYPES, DI_SYMBOLS } from "./types";
@@ -26,7 +27,8 @@ export const initializeContainer = () => {
     AuthenticatedApiClientModule,
     CookieStorageModule,
     ApiClientModule,
-    SqliteModule
+    SqliteModule,
+    PresenterModule
   );
 };
 
@@ -38,7 +40,8 @@ export const destroyContainer = () => {
     AuthenticatedApiClientModule,
     CookieStorageModule,
     ApiClientModule,
-    SqliteModule
+    SqliteModule,
+    PresenterModule
   );
 };
 
