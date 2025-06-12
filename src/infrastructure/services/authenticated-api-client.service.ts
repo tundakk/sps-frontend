@@ -96,12 +96,11 @@ export class AuthenticatedApiClientService {
       headers: { 'Authorization': `Bearer ${session.token}` } 
     });
   }
-
   /**
    * Gets the current active session with validation
    */
   private async getActiveSession(): Promise<SessionData> {
-    const sessionId = this.sessionService.getCurrentSessionId();
+    const sessionId = await this.sessionService.getCurrentSessionId();
     if (!sessionId) {
       throw new UnauthenticatedError('No active session');
     }
@@ -118,12 +117,11 @@ export class AuthenticatedApiClientService {
     
     return session;
   }
-  
-  /**
+    /**
    * Refreshes an authentication token
    */
   private async refreshToken(session: SessionData): Promise<void> {
-    const sessionId = session.id || this.sessionService.getCurrentSessionId();
+    const sessionId = session.id || await this.sessionService.getCurrentSessionId();
     if (!sessionId) {
       throw new UnauthenticatedError('No active session');
     }

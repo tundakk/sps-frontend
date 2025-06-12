@@ -95,13 +95,13 @@ export class SqliteSessionService implements ISessionService {
   
   /**
    * Creates a new session for a user
-   */
-  async createSession(userId: string, data?: Partial<Omit<SessionData, 'userId'>>): Promise<string> {
+   */  async createSession(userId: string, data?: Partial<Omit<SessionData, 'userId'>>): Promise<string> {
     if (!this.dbInitialized) {
       await this.initializeDatabase();
     }
     
-    const sessionId = `session_${userId}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    // Use crypto.randomUUID() for better entropy and to avoid Date.now() hydration issues
+    const sessionId = `session_${userId}_${crypto.randomUUID()}`;
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
     
@@ -266,11 +266,10 @@ export class SqliteSessionService implements ISessionService {
       }
     };
   }
-
   /**
    * Gets the current session ID from cookies
    */
-  getCurrentSessionId(): string | null {
+  getCurrentSessionId(): string | null | Promise<string | null> {
     return this.cookieStorageService.getCookie(SESSION_COOKIE);
   }
   

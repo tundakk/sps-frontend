@@ -7,12 +7,11 @@ import { SESSION_COOKIE } from "@/config";
 export class MockSessionService implements ISessionService {
   private sessions: Map<string, SessionData> = new Map();
   private currentSessionId: string | null = null;
-  
-  async createSession(
+    async createSession(
     userId: string, 
     data?: Partial<Omit<SessionData, 'userId'>>
   ): Promise<string> {
-    // Generate a unique session ID
+    // Use crypto.randomUUID() for better entropy and to avoid hydration issues
     const sessionId = crypto.randomUUID();
     
     // Set expiration to 24 hours from now if not provided
@@ -88,8 +87,7 @@ export class MockSessionService implements ISessionService {
       }
     };
   }
-  
-  getCurrentSessionId(): string | null {
+    getCurrentSessionId(): string | null | Promise<string | null> {
     return this.currentSessionId;
   }
 }

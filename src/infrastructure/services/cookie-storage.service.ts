@@ -6,26 +6,29 @@ import { CookieOptions } from '@/src/core/dtos/cookie.dto';
 
 @injectable()
 export class CookieStorageService implements ICookieStorageService {
-  getCookie(key: string): string | null {
+  async getCookie(key: string): Promise<string | null> {
     // For server components, use Next.js cookies() API
     if (typeof window === 'undefined') {
-      return cookies().get(key)?.value || null;
+      const cookieStore = await cookies();
+      return cookieStore.get(key)?.value || null;
     }
     // For client components, use cookies-next
     return getCookie(key)?.toString() || null;
   }
   
-  setCookie(key: string, value: string, options?: CookieOptions): void {
+  async setCookie(key: string, value: string, options?: CookieOptions): Promise<void> {
     if (typeof window === 'undefined') {
-      cookies().set(key, value, options);
+      const cookieStore = await cookies();
+      cookieStore.set(key, value, options);
     } else {
       setCookie(key, value, options);
     }
   }
   
-  removeCookie(key: string): void {
+  async removeCookie(key: string): Promise<void> {
     if (typeof window === 'undefined') {
-      cookies().delete(key);
+      const cookieStore = await cookies();
+      cookieStore.delete(key);
     } else {
       deleteCookie(key);
     }

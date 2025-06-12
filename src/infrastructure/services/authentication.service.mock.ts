@@ -279,19 +279,13 @@ export class MockAuthenticationService implements IAuthenticationService {
   private _generateMockRefreshToken(): string {
     return `refresh_${this._currentUser!.id}_${Date.now()}`;
   }
-
   /**
    * Base64 encodes a string (URL-safe)
    */
   private _base64Encode(str: string): string {
-    if (typeof window !== 'undefined') {
-      // Browser environment
-      return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    } else {
-      // Node environment
-      return Buffer.from(str).toString('base64')
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    }
+    // Always use Buffer approach for consistency and to avoid hydration mismatches
+    return Buffer.from(str).toString('base64')
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
   /**

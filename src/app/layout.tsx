@@ -7,12 +7,12 @@ import { AuthCheck } from './_components/auth-check';
 import { SESSION_COOKIE } from "@/config";
 import { Toaster } from "./_components/ui/sonner";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const sessionId = cookies().get(SESSION_COOKIE)?.value;
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+  const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
   const isAuthenticated = !!sessionId;
-  
-  return (
-    <html lang="en">
+    return (
+    <html lang="en" suppressHydrationWarning>
       <body>
         <Providers>
           <AuthCheck isAuthenticated={isAuthenticated}>

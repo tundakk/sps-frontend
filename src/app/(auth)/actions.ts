@@ -9,12 +9,12 @@ import { SESSION_COOKIE } from "@/config";
 export async function signIn(formData: FormData) {
   const username = formData.get("username")?.toString();
   const password = formData.get("password")?.toString();
-
   return handleControllerResponse(
     () => signInController({ username, password }),
     {
-      onSuccess: (sessionCookie) => {
-        cookies().set(
+      onSuccess: async (sessionCookie) => {
+        const cookieStore = await cookies();
+        cookieStore.set(
           sessionCookie.name,
           sessionCookie.value,
           sessionCookie.attributes
@@ -76,13 +76,15 @@ export async function signUp(formData: FormData) {
 export async function signOut() {
   return handleControllerResponse(
     async () => {
-      const sessionId = cookies().get(SESSION_COOKIE)?.value;
+      const cookieStore = await cookies();
+      const sessionId = cookieStore.get(SESSION_COOKIE)?.value;
       return await signOutController(sessionId || null);
     },
     {
-      onSuccess: (blankCookie) => {
+      onSuccess: async (blankCookie) => {
         if (blankCookie) {
-          cookies().set(
+          const cookieStore = await cookies();
+          cookieStore.set(
             blankCookie.name,
             blankCookie.value,
             blankCookie.attributes

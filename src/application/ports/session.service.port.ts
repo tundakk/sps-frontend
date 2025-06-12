@@ -47,12 +47,11 @@ export interface ISessionService {
 
    /**
    * Creates a blank cookie for logout purposes
-   */
-   createBlankCookie(): Cookie;
+   */  createBlankCookie(): Cookie;
 
   /**
    * Gets the current session ID from storage
    * @returns The current session ID or null if not found
    */
-  getCurrentSessionId(): string | null;
+  getCurrentSessionId(): string | null | Promise<string | null>;
 }

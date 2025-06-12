@@ -17,9 +17,9 @@ export class SessionService implements ISessionService {
   ) {}
 
   private sessions: Map<string, { userId: string; expiresAt: Date; metadata?: SessionMetadata }> = new Map();
-  
-  async createSession(userId: string, metadata?: Record<string, unknown>): Promise<string> {
-    const sessionId = `session_${userId}_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    async createSession(userId: string, metadata?: Record<string, unknown>): Promise<string> {
+    // Use crypto.randomUUID() for better entropy and to avoid Date.now() hydration issues
+    const sessionId = `session_${userId}_${crypto.randomUUID()}`;
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24);
     this.sessions.set(sessionId, { userId, expiresAt, metadata });
@@ -89,8 +89,7 @@ export class SessionService implements ISessionService {
       }
     };
   }
-
-  getCurrentSessionId(): string | null {
+  getCurrentSessionId(): string | null | Promise<string | null> {
     return this.cookieStorageService.getCookie(SESSION_COOKIE);
   }
 }
